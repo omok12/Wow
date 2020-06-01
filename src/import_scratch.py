@@ -10,12 +10,11 @@ from src.import_helpers import *
 # print(cur.fetchone())
 
 
-query_tuj = ('''SELECT *
-            FROM tblItemHistoryDaily
-            WHERE house = 15 AND 'when' >= '2018-08-14'
+query_tuj = ('''SELECT id, name_enus
+            FROM tblDBCItem
         ''')
 
-target_table = 'area52_daily'
+target_table = 'item_name'
 
 # area-52 house = 15
 tuj_to_local(query_tuj, target_table)
