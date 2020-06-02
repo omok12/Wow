@@ -1,7 +1,6 @@
 import sqlalchemy as sa
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+from src.plot_helpers import *
 
 engine_local = sa.create_engine('postgres://o:password@localhost/wow')
 
@@ -15,30 +14,25 @@ query = ('''
 df = pd.read_sql(query, engine_local)
 df = df.sort_values(by='when')
 
-recipe = {'Zin\'anthid':25,
-          'Anchor Weed':10,
-          'Sea Stalk':8,
-          'Greater Flask of the Currents':1
-          }
-print(list(recipe.keys()))
+print(df.groupby('name_enus').count() )
 
-
-def plot_recipe(df, dict, to_sell):
-    temp = pd.Series(np.zeros(93))
-    for ing in list(dict.keys()):
-        mask = df['name_enus']==ing
-        cost = df[mask].priceavg*dict[ing]
-        if ing != to_sell:
-            temp = temp.add(cost.reset_index(drop=True))
-        plt.plot(df[mask].when, cost, label=ing)
-    sell_mask = df['name_enus']==to_sell
-    plt.plot(df[sell_mask].when, temp, label='Cost')
-    profit = df[sell_mask].priceavg.reset_index(drop=True).multiply(dict[to_sell]).add(-temp)
-    plt.plot(df[sell_mask].when, profit, label='Profit')
-    plt.plot()
-
-to_sell = 'Greater Flask of the Currents'
-plot_recipe(df, recipe, to_sell)
-plt.legend()
-plt.show()
+# to_sell = 'Greater Flask of the Currents'
+# recipe1 = {'Zin\'anthid':25,
+#           'Anchor Weed':10,
+#           'Sea Stalk':8,
+#           'Greater Flask of the Currents':1
+#           }
+# recipe2 = {'Zin\'anthid':20,
+#           'Anchor Weed':5,
+#           'Sea Stalk':5,
+#           'Greater Flask of the Currents':1
+#           }
+# recipe3 = {'Zin\'anthid':20,
+#           'Anchor Weed':5,
+#           'Sea Stalk':5,
+#           'Greater Flask of the Currents':1
+#           }
+# plot_recipe(df, recipe1, to_sell, all=False, proc=1)
+# plot_recipe(df, recipe2, to_sell, all=False, proc=1.25)
+# plot_recipe(df, recipe3, to_sell, all=False, proc=1.5)
 
