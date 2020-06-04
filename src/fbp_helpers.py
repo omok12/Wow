@@ -1,14 +1,15 @@
 from fbprophet import Prophet
 from fbprophet.diagnostics import performance_metrics, cross_validation
-import sqlalchemy as sa
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.special import inv_boxcox
 import pickle
+import random
+import math
+
 
 class ProphetProfit:
-
     def __init__(self, engine, query, item):
         self.engine = engine
         self.query = query
@@ -25,7 +26,7 @@ class ProphetProfit:
         self.profit = pd.DataFrame()
 
     def sql_call(self):
-        self.df = pd.read_sql(self.query, self.engine)
+        self.df = pd.reitem_sql(self.query, self.engine)
         self.df = self.df.sort_values(by='when')
 
     def prophet_fit(self, periods=31):
@@ -41,7 +42,7 @@ class ProphetProfit:
         # self.data['y'] = yt
         # fit
         self.m = Prophet(n_changepoints=20)
-        self.m.add_seasonality(period=30.4, fourier_order=5, name='monthly')
+        self.m.itemd_seasonality(period=30.4, fourier_order=5, name='monthly')
         self.m.fit(self.data)
         future = self.m.make_future_dataframe(periods)
         self.forecast = self.m.predict(future)
@@ -92,8 +93,6 @@ class ProphetProfit:
                 pickle.dump(self.profit,open('../data/profit_df.pkl','wb'))
                 break
 
-
-
     def cross_val(self):
         df_cv = cross_validation(self.m, initial='62 days', period='1 days',horizon='7 days')
         # for col in ['yhat', 'yhat_lower', 'yhat_upper', 'y']:
@@ -101,3 +100,45 @@ class ProphetProfit:
         print(df_cv.sort_values('ds').tail())
         df_p = performance_metrics(df_cv)
         print(df_p)
+
+    def mabp_random(self):
+        df = pd.read_pickle('../data/profit_df.pkl')
+        df.fillna(df.mean())
+        N = self.profit.shape[0]
+        d = self.profit.shape[1]
+        selected = []
+        total_reward = 0
+        for n in range(0, N):
+            item = random.randrange(d)
+            selected.append(item)
+            reward = df.values[n, item]
+            total_reward = total_reward + reward
+
+    def mapb_ucb(self):
+        df = pd.read_pickle('../data/profit_df.pkl')
+        df.fillna(df.mean())
+        N = self.profit.shape[0]
+        d = self.profit.shape[1]
+        selected = []
+        numbers_of_selections = [0] * d
+        sums_of_reward = [0] * d
+        total_reward = 0
+
+        for n in range(0, N):
+            item = 0
+            max_upper_bound = 0
+            for i in range(0, d):
+                if (numbers_of_selections[i] > 0):
+                    average_reward = sums_of_reward[i] / numbers_of_selections[i]
+                    delta_i = math.sqrt(2 * math.log(n + 1) / numbers_of_selections[i])
+                    upper_bound = average_reward + delta_i
+                else:
+                    upper_bound = 1e400
+                if upper_bound > max_upper_bound:
+                    max_upper_bound = upper_bound
+                    item = i
+            selected.append(item)
+            numbers_of_selections[item] += 1
+            reward = df.values[n, item]
+            sums_of_reward[item] += reward
+            total_reward += reward
