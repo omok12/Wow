@@ -13,10 +13,11 @@ query = ('''
         FROM area52_daily
         INNER JOIN item_name on area52_daily.item=item_name.id
         ''')
-item = 'Ghost Iron Ore'
+item = 'Coarse Leather'
 p = ProphetProfit(engine_local, query, item)
 p.plot()
-
+# p.make_profit('2020-05-24')
+p.cross_val()
 #
 # positive_trend = []
 # negative_trend = []
