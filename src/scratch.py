@@ -1,50 +1,53 @@
-import sqlalchemy as sa
+import pickle
 import pandas as pd
-import matplotlib.pyplot as plt
-from scipy import stats
 from scipy.special import inv_boxcox
-from src.fbp_helpers import *
+import random
 
-engine_local = sa.create_engine('postgres://o:password@localhost/wow')
+df = pd.read_pickle('../data/profit_df.pkl')
+df.fillna(df.mean())
+print(df.values.shape)
+N = 34
+d = 10
+selected = []
+total_reward = 0
+for n in range(0, N):
+    ad = random.randrange(d)
+    selected.append(ad)
+    reward = df.values[n, ad]
+    total_reward = total_reward + reward
 
-query = ('''
-        SELECT area52_daily.when, area52_daily.priceavg, area52_daily.quantityavg, name_enus
-        FROM area52_daily
-        INNER JOIN item_name on area52_daily.item=item_name.id
-        ''')
+print(pd.Series(selected).value_counts(normalize=True))
+print(total_reward)
 
-df = sql_call(engine_local, query)
-mask = df['name_enus'] == 'Deep Sea Satin'
-data = df[mask][['when', 'priceavg']].rename(columns={'when': 'ds', 'priceavg': 'y'})
-std = data['y'].std() * 1.5
-mean = data['y'].mean()
-data = data[(data['y'] < mean + std) & (data['y'] > mean - std)]
-# fig, ax = plt.subplots(1,2)
-# ax[0].plot(data.ds, data.y)
+import math
+N = 34
+d = 10
+selected = []
+numbers_of_selections = [0] * d
+sums_of_reward = [0] * d
+total_reward = 0
 
-yt, lmbda = stats.boxcox(data.y)
-data.y = yt
+for n in range(0, N):
+    ad = 0
+    max_upper_bound = 0
+    for i in range(0, d):
+        if (numbers_of_selections[i] > 0):
+            average_reward = sums_of_reward[i] / numbers_of_selections[i]
+            delta_i = math.sqrt(2 * math.log(n+1) / numbers_of_selections[i])
+            upper_bound = average_reward + delta_i
+        else:
+            upper_bound = 1e400
+        if upper_bound > max_upper_bound:
+            max_upper_bound = upper_bound
+            ad = i
+    selected.append(ad)
+    numbers_of_selections[ad] += 1
+    reward = df.values[n, ad]
+    sums_of_reward[ad] += reward
+    total_reward += reward
 
-m = Prophet(n_changepoints=20)
-m.add_seasonality(period=30.4, fourier_order=5, name='monthly')
-m.fit(data)
-future = m.make_future_dataframe(periods=31)
-forecast = m.predict(future)
-print(forecast.columns)
-# fig1 = m.plot(forecast)
-# fig2 = m.plot_components(forecast)
-# plt.show()
-#
-# df_cv = cross_validation(m, initial='62 days', period='1 days', horizon='7 days')
-# print(df_cv.sort_values('ds').tail())
-# df_cv['yhat'] = inv_boxcox(df_cv['yhat'], lmbda)
-# df_cv['y'] = inv_boxcox(df_cv['y'], lmbda)
-# print(df_cv.sort_values('ds').tail())
-# df_p = performance_metrics(df_cv)
-# print(df_p.head())
+print(pd.Series(selected).value_counts(normalize=True))
+print(total_reward)
 
+print(df.columns[7])
 
-
-
-# ax[1].plot(data.ds, yt)
-# plt.show()
