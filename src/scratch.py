@@ -6,8 +6,8 @@ import random
 df = pd.read_pickle('../data/profit_df.pkl')
 df.fillna(df.mean())
 print(df.values.shape)
-N = 34
-d = 10
+N = df.shape[0]
+d = df.shape[1]
 selected = []
 total_reward = 0
 for n in range(0, N):
@@ -20,8 +20,8 @@ print(pd.Series(selected).value_counts(normalize=True))
 print(total_reward)
 
 import math
-N = 34
-d = 10
+N = df.shape[0]
+d = df.shape[1]
 selected = []
 numbers_of_selections = [0] * d
 sums_of_reward = [0] * d
@@ -40,14 +40,14 @@ for n in range(0, N):
         if upper_bound > max_upper_bound:
             max_upper_bound = upper_bound
             ad = i
-    selected.append(ad)
-    numbers_of_selections[ad] += 1
-    reward = df.values[n, ad]
-    sums_of_reward[ad] += reward
-    total_reward += reward
+        selected.append(ad)
+        numbers_of_selections[ad] += 1
+        reward = df.values[n, ad]
+        sums_of_reward[ad] += reward
+        total_reward += reward
 
 print(pd.Series(selected).value_counts(normalize=True))
 print(total_reward)
 
-print(df.columns[7])
+print(df.isna().sum())
 

@@ -1,8 +1,4 @@
-from fbprophet import Prophet
-from fbprophet.diagnostics import performance_metrics, cross_validation
 import sqlalchemy as sa
-import pandas as pd
-import matplotlib.pyplot as plt
 from src.fbp_helpers import *
 
 
@@ -13,14 +9,14 @@ query = ('''
         FROM area52_daily
         INNER JOIN item_name on area52_daily.item=item_name.id
         ''')
-item = 'Roseate Pigment'
+item = 'Shal\'dorei Silk'
 p = ProphetProfit(engine_local, query, item)
-p.plot()
+
 # p.make_profit('2020-05-24')
 # p.cross_val()
 #
-
-# p.make_lists('2020-05-24')
+# p.plot()
+p.make_lists('2020-05-25')
 
 #
 # for item in item_list(df):
