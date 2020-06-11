@@ -5,20 +5,21 @@ import random
 
 df = pd.read_pickle('../data/profit_df.pkl')
 df.fillna(df.mean())
-print(df.values.shape)
-N = df.shape[0]
-d = df.shape[1]
-selected = []
-total_reward = 0
-for n in range(0, N):
-    ad = random.randrange(d)
-    selected.append(ad)
-    reward = df.values[n, ad]
-    total_reward = total_reward + reward
+print(df.sum())
 
-print(pd.Series(selected).value_counts(normalize=True))
-print(total_reward)
-
+# N = df.shape[0]
+# d = df.shape[1]
+# selected = []
+# total_reward = 0
+# for n in range(0, N):
+#     ad = random.randrange(d)
+#     selected.append(ad)
+#     reward = df.values[n, ad]
+#     total_reward = total_reward + reward
+#
+# print(pd.Series(selected).value_counts(normalize=True))
+# print(total_reward)
+#
 import math
 N = df.shape[0]
 d = df.shape[1]
@@ -40,14 +41,15 @@ for n in range(0, N):
         if upper_bound > max_upper_bound:
             max_upper_bound = upper_bound
             ad = i
-        selected.append(ad)
-        numbers_of_selections[ad] += 1
-        reward = df.values[n, ad]
-        sums_of_reward[ad] += reward
-        total_reward += reward
+    selected.append(ad)
+    numbers_of_selections[ad] += 1
+    reward = df.values[n, ad]
+    sums_of_reward[ad] += reward
+    total_reward += reward
+    print(selected)
 
 print(pd.Series(selected).value_counts(normalize=True))
 print(total_reward)
 
-print(df.isna().sum())
+print(df.describe().max())
 

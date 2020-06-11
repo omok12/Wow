@@ -16,24 +16,7 @@ p = ProphetProfit(engine_local, query, item)
 # p.cross_val()
 #
 # p.plot()
-p.make_lists('2020-05-25')
+p.make_lists('2020-05-27')
 
-#
-# for item in item_list(df):
-#     print(item)
-#     m, forecast, ma = prophet_fit(df, item)
-#     positive_trend, negative_trend = make_lists(ma, item, positive_trend, negative_trend)
-#     if len(positive_trend) > 10:
-#         break
-# print(positive_trend)
-# print(negative_trend)
-
-# m, forecast, ma, lmbda = prophet_fit(df, 'Monelite Ore')
-# print(forecast.columns)
-# buy_date = '2020-05-20'
-# buy_price =
-
-# fig1 = m.plot(forecast)
-# fig2 = m.plot_components(forecast)
-# plt.show()
-# cross_val(m, lmbda)
+print(p.mabp_random())
+print(p.mapb_ucb())
