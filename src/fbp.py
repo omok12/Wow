@@ -16,7 +16,7 @@ p = ProphetProfit(engine_local, query, item)
 # p.cross_val()
 #
 # p.plot()
-p.make_lists('2020-05-27')
+# p.make_lists('2020-05-27')
 
 print(p.mabp_random())
 print(p.mapb_ucb())

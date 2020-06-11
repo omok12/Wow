@@ -9,7 +9,7 @@ import random
 import math
 import datetime
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, RobustScaler
 
 
 
@@ -99,28 +99,34 @@ class ProphetProfit:
     def mabp_random(self):
         df = pd.read_pickle('../data/profit_df.pkl')
         df.fillna(df.mean())
-        df = StandardScaler().fit_transform(df)
+        scaler = RobustScaler().fit(df)
+        df = scaler.transform(df)
         N = df.shape[0]
         d = df.shape[1]
         selected = []
         total_reward = 0
+        total_profit = 0
         for n in range(0, N):
             item = random.randrange(d)
             selected.append(item)
             reward = df[n, item]
+            profit = scaler.inverse_tranform(df)[n, item]
             total_reward = total_reward + reward
+            total_profit = total_profit + profit
         return pd.Series(selected).value_counts(normalize=True)
 
     def mapb_ucb(self):
         df = pd.read_pickle('../data/profit_df.pkl')
         df.fillna(df.mean())
-        df = StandardScaler().fit_transform(df)
+        scaler = RobustScaler().fit(df)
+        df = scaler.transform(df)
         N = df.shape[0]
         d = df.shape[1]
         selected = []
         numbers_of_selections = [0] * d
         sums_of_reward = [0] * d
         total_reward = 0
+        total_profit = 0
 
         for n in range(0, N):
             item = 0
@@ -136,9 +142,10 @@ class ProphetProfit:
                     max_upper_bound = upper_bound
                     item = i
             selected.append(item)
-            print(selected)
             numbers_of_selections[item] += 1
             reward = df[n, item]
+            profit = scaler.inverse_tranform(df)[n, item]
             sums_of_reward[item] += reward
             total_reward += reward
+            total_profit += profit
         return pd.Series(selected).value_counts(normalize=True)

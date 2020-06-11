@@ -2,24 +2,34 @@ import pickle
 import pandas as pd
 from scipy.special import inv_boxcox
 import random
+from sklearn.preprocessing import StandardScaler, RobustScaler
+
 
 df = pd.read_pickle('../data/profit_df.pkl')
 df.fillna(df.mean())
 print(df.sum())
+scaler = RobustScaler().fit(df)
+df = scaler.transform(df)
 
-# N = df.shape[0]
-# d = df.shape[1]
-# selected = []
-# total_reward = 0
-# for n in range(0, N):
-#     ad = random.randrange(d)
-#     selected.append(ad)
-#     reward = df.values[n, ad]
-#     total_reward = total_reward + reward
-#
-# print(pd.Series(selected).value_counts(normalize=True))
-# print(total_reward)
-#
+
+
+N = df.shape[0]
+d = df.shape[1]
+selected = []
+total_reward = 0
+total_profit = 0
+for n in range(0, N):
+    ad = random.randrange(d)
+    selected.append(ad)
+    reward = df[n, ad]
+    profit = scaler.inverse_transform(df)[n,ad]
+    total_reward = total_reward + reward
+    total_profit = total_profit + profit
+
+print(pd.Series(selected).value_counts(normalize=True))
+print(total_reward)
+print(total_profit)
+
 import math
 N = df.shape[0]
 d = df.shape[1]
@@ -27,6 +37,7 @@ selected = []
 numbers_of_selections = [0] * d
 sums_of_reward = [0] * d
 total_reward = 0
+total_profit = 0
 
 for n in range(0, N):
     ad = 0
@@ -43,13 +54,15 @@ for n in range(0, N):
             ad = i
     selected.append(ad)
     numbers_of_selections[ad] += 1
-    reward = df.values[n, ad]
+    reward = df[n, ad]
+    profit = scaler.inverse_transform(df)[n,ad]
     sums_of_reward[ad] += reward
     total_reward += reward
-    print(selected)
+    total_profit += profit
+    print(profit)
 
 print(pd.Series(selected).value_counts(normalize=True))
 print(total_reward)
+print(total_profit)
 
-print(df.describe().max())
 
